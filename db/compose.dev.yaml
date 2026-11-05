@@ -1,0 +1,74 @@
+# The four databases on their own, for development and tests. See db/README.md.
+# Each is on its own network, as in the full system. The ports exist so tests can
+# reach the databases from the host and are bound to localhost only.
+name: senate-voting-db
+
+services:
+  roll-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: roll
+      POSTGRES_PASSWORD: ${ROLL_DB_SUPERUSER_PASSWORD:?set in .env}
+      ROLL_AUTH_SVC_PASSWORD: ${ROLL_AUTH_SVC_PASSWORD:?set in .env}
+    volumes:
+      - ./roll/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - roll-data:/var/lib/postgresql/data
+    networks: [roll-net]
+    ports: ["127.0.0.1:5541:5432"]
+    healthcheck: &healthcheck
+      test: ["CMD-SHELL", "pg_isready -U postgres -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  auth-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_PASSWORD: ${AUTH_DB_SUPERUSER_PASSWORD:?set in .env}
+      AUTH_AUTH_SVC_PASSWORD: ${AUTH_AUTH_SVC_PASSWORD:?set in .env}
+    volumes:
+      - ./auth/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - auth-data:/var/lib/postgresql/data
+    networks: [auth-net]
+    ports: ["127.0.0.1:5542:5432"]
+    healthcheck: *healthcheck
+
+  ballot-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ballot
+      POSTGRES_PASSWORD: ${BALLOT_DB_SUPERUSER_PASSWORD:?set in .env}
+      BALLOT_BALLOT_SVC_PASSWORD: ${BALLOT_BALLOT_SVC_PASSWORD:?set in .env}
+      BALLOT_COUNT_SVC_PASSWORD: ${BALLOT_COUNT_SVC_PASSWORD:?set in .env}
+    volumes:
+      - ./ballot/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ballot-data:/var/lib/postgresql/data
+    networks: [ballot-net]
+    ports: ["127.0.0.1:5543:5432"]
+    healthcheck: *healthcheck
+
+  audit-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: audit
+      POSTGRES_PASSWORD: ${AUDIT_DB_SUPERUSER_PASSWORD:?set in .env}
+      AUDIT_AUDIT_SVC_PASSWORD: ${AUDIT_AUDIT_SVC_PASSWORD:?set in .env}
+    volumes:
+      - ./audit/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - audit-data:/var/lib/postgresql/data
+    networks: [audit-net]
+    ports: ["127.0.0.1:5544:5432"]
+    healthcheck: *healthcheck
+
+networks:
+  roll-net:
+  auth-net:
+  ballot-net:
+  audit-net:
+
+volumes:
+  roll-data:
+  auth-data:
+  ballot-data:
+  audit-data:
