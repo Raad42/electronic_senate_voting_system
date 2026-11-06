@@ -20,6 +20,7 @@ a { color: inherit; }
 .environment-badge { background: #264a7a; color: #dce9ff; }
 .state-pill { background: #e8effb; color: #31537d; }
 .chain-pill { background: #dcf6e9; color: #16643d; }
+.chain-pill-invalid { background: #fff0f0; color: #8a2d2d; }
 .navigation { padding: .7rem clamp(1.25rem, 5vw, 5rem); display: flex; gap: .35rem; flex-wrap: wrap; background: white; border-bottom: 1px solid #d9e0eb; }
 .nav-link { padding: .65rem .85rem; border-radius: .55rem; text-decoration: none; color: #52627b; font-size: .92rem; font-weight: 700; }
 .nav-link:hover, .nav-link-active { background: #e9f0fb; color: #1f4d88; }
@@ -95,6 +96,16 @@ a { color: inherit; }
 .form-stack input:focus, .form-stack select:focus { outline: 3px solid #d7e8fc; border-color: #3d76b8; }
 .checklist { display: flex; flex-direction: column; gap: .35rem; padding: 1rem; border-radius: .65rem; background: #f5f8fc; color: #315778; font-size: .9rem; }
 .table-panel { padding: 0; overflow: hidden; }
+.audit-toolbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; }
+.audit-toolbar label { display: flex; flex-direction: column; gap: .4rem; color: #324863; font-weight: 800; }
+.audit-toolbar select { min-width: 220px; padding: .7rem .8rem; border: 1px solid #cbd5e2; border-radius: .55rem; background: white; }
+.audit-row-selected { background: #f1f7ff; }
+.audit-detail-panel, .privacy-panel { border-color: #c9dcf4; }
+.audit-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding-top: 1.1rem; }
+.audit-detail-grid > div { display: flex; flex-direction: column; gap: .35rem; }
+.audit-detail-grid span { color: #6b7990; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+.audit-detail-grid strong, .audit-detail-grid code { overflow-wrap: anywhere; }
+.privacy-panel p { color: #576981; line-height: 1.6; }
 .resilience-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 .resilience-card { display: flex; flex-direction: column; align-items: flex-start; gap: .6rem; padding: 1.25rem; border: 1px solid #dce3ed; border-radius: .9rem; background: white; }
 .resilience-card-selected { border-color: #4d83c5; box-shadow: 0 0 0 3px #e2efff; }
@@ -114,9 +125,10 @@ code { color: #486380; font-size: .78rem; }
 .footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.2rem clamp(1.25rem, 5vw, 5rem); color: #718097; background: white; border-top: 1px solid #dce3ed; font-size: .78rem; }
 
 @media (max-width: 720px) {
-  .topbar, .page-heading, .panel-meta, .panel-heading { flex-direction: column; align-items: flex-start; }
+  .topbar, .page-heading, .panel-meta, .panel-heading, .audit-toolbar { flex-direction: column; align-items: flex-start; }
   .grid-3 { grid-template-columns: 1fr; }
   .resilience-grid { grid-template-columns: 1fr; }
+  .audit-detail-grid { grid-template-columns: 1fr; }
   .action-list > div { grid-template-columns: 1fr; gap: .45rem; }
   .progress-step { flex-direction: column; align-items: flex-start; gap: .25rem; font-size: .7rem; }
   .review-row { grid-template-columns: 1fr; gap: .35rem; }

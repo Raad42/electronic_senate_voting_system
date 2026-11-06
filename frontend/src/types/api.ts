@@ -60,6 +60,9 @@ export type AuditEvent = {
   actorType: string
   actorId: string
   resourceId: string
+  electionId: string
+  state: string
+  countId: string | null
   timestamp: string
   previousHash: string
   eventHash: string
