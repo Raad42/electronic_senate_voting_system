@@ -28,12 +28,12 @@ export class ApiError extends Error {
 }
 
 export const api = {
-  obtainElectorAuthorisation: (state: string): Promise<ElectorAuthorisation> =>
+  obtainElectorAuthorisation: (enrolmentId: string, password: string, electionId: string, state: string): Promise<ElectorAuthorisation> =>
     useMockApi
       ? mockApi.obtainElectorAuthorisation(state)
       : request<ElectorAuthorisation>('/auth/elector/authorisation', {
           method: 'POST',
-          body: JSON.stringify({ state }),
+          body: JSON.stringify({ enrolmentId, password, electionId, state }),
         }),
 
   getBallotConfig: (state: string, electionId: string): Promise<BallotConfig> =>

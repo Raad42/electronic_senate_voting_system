@@ -52,7 +52,7 @@ export function AuditPage() {
 
       <div className="grid-3">
         <div className="metric-card"><span>Events loaded</span><strong>{events.length}</strong></div>
-        <div className="metric-card"><span>Election</span><strong>senate-2026</strong></div>
+        <div className="metric-card"><span>Election</span><strong>SENATE-2026</strong></div>
         <div className="metric-card"><span>Ballot identity links</span><strong>None exposed</strong></div>
       </div>
 

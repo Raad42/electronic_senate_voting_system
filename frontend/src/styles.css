@@ -35,6 +35,8 @@ a { color: inherit; }
 .flow-panel { display: flex; flex-direction: column; align-items: flex-start; gap: .8rem; }
 .flow-panel h3 { margin: 0; font-size: 1.35rem; }
 .flow-panel > p { margin: 0; color: #64738a; line-height: 1.6; }
+.flow-field { display: flex; flex-direction: column; gap: .4rem; width: 100%; color: #324863; font-weight: 800; }
+.flow-field input { width: 100%; padding: .75rem .8rem; border: 1px solid #cbd5e2; border-radius: .55rem; color: #172235; background: white; }
 .step-icon { display: inline-flex; justify-content: center; align-items: center; width: 2.5rem; height: 2.5rem; border-radius: .7rem; background: #eaf2fd; color: #2262ad; font-weight: 900; }
 .review-row { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; width: 100%; padding: 1rem; border: 1px solid #bed4ef; border-radius: .7rem; background: #f1f7ff; color: #244c78; }
 .review-row small { color: #65748a; }

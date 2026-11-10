@@ -3,13 +3,15 @@ import { api } from '../api/client'
 import { StatusMessage } from '../components/StatusMessage'
 import type { BallotConfig, BallotSubmission, ElectorAuthorisation } from '../types/api'
 
-const electionId = 'senate-2026'
+const electionId = 'SENATE-2026'
 const state = 'SA'
 type BallotStage = 'authorise' | 'ballot' | 'review' | 'receipt'
 
 export function BallotPage() {
   const [stage, setStage] = useState<BallotStage>('authorise')
   const [authorisation, setAuthorisation] = useState<ElectorAuthorisation | null>(null)
+  const [enrolmentId, setEnrolmentId] = useState('ELECTOR-001')
+  const [password, setPassword] = useState('demo-password')
   const [config, setConfig] = useState<BallotConfig | null>(null)
   const [selectedCandidate, setSelectedCandidate] = useState('')
   const [submission, setSubmission] = useState<BallotSubmission | null>(null)
@@ -30,7 +32,7 @@ export function BallotPage() {
     setLoading(true)
     setError('')
     try {
-      const result = await api.obtainElectorAuthorisation(state)
+      const result = await api.obtainElectorAuthorisation(enrolmentId, password, electionId, state)
       setAuthorisation(result)
       setStage('ballot')
     } catch {
@@ -84,15 +86,17 @@ export function BallotPage() {
       {error && <StatusMessage tone="error" title="Action unavailable">{error}</StatusMessage>}
 
       {stage === 'authorise' && (
-        <div className="panel flow-panel">
+        <form className="panel flow-panel" onSubmit={(event) => { event.preventDefault(); void beginAuthorisation() }}>
           <span className="step-icon">01</span>
           <h3>Get one ballot authorisation</h3>
           <p>The server will issue a short-lived, single-use capability for the {state} election. It does not contain your elector identifier.</p>
-          <button className="button button-primary" onClick={beginAuthorisation} disabled={loading}>
+          <label className="flow-field">Elector enrolment ID<input value={enrolmentId} onChange={(event) => setEnrolmentId(event.target.value.toUpperCase())} autoComplete="username" required /></label>
+          <label className="flow-field">Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required /></label>
+          <button className="button button-primary" type="submit" disabled={loading}>
             {loading ? 'Checking eligibility…' : 'Continue to secure ballot'}
           </button>
           <p className="helper-text">The capability expires after 15 minutes and can be consumed only once.</p>
-        </div>
+        </form>
       )}
 
       {stage === 'ballot' && (

@@ -40,7 +40,7 @@ export const mockApi = {
     return {
       role: 'RECOUNT_DELEGATE',
       sessionExpiresAt: '2026-10-28T13:06:00Z',
-      scope: { state: 'SA', electionId: 'senate-2026', countId: 'count-2026-01' },
+      scope: { state: 'SA', electionId: 'SENATE-2026', countId: 'count-2026-01' },
     }
   },
 
@@ -70,7 +70,7 @@ export const mockApi = {
           actorType: 'OFFICIAL',
           actorId: 'operator-017',
           resourceId: 'exc-2026-000001',
-          electionId: 'senate-2026',
+          electionId: 'SENATE-2026',
           state: 'SA',
           countId: 'count-2026-01',
           timestamp: '2026-10-28T05:08:00Z',
@@ -83,7 +83,7 @@ export const mockApi = {
           actorType: 'SERVICE',
           actorId: 'count-service',
           resourceId: 'count-2026-01',
-          electionId: 'senate-2026',
+          electionId: 'SENATE-2026',
           state: 'SA',
           countId: 'count-2026-01',
           timestamp: '2026-10-28T05:01:00Z',
@@ -96,7 +96,7 @@ export const mockApi = {
           actorType: 'OFFICIAL',
           actorId: 'operator-017',
           resourceId: 'ballot-identity-lookup',
-          electionId: 'senate-2026',
+          electionId: 'SENATE-2026',
           state: 'SA',
           countId: null,
           timestamp: '2026-10-28T04:59:00Z',
