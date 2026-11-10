@@ -49,6 +49,9 @@ export const mockApi = {
     if (payload.candidateId !== 'CAND-041') {
       return { status: 'REJECTED', reason: 'Candidate is outside the delegate state scope.' }
     }
+    if (!/^\d{6}$/.test(payload.stepUpCode)) {
+      return { status: 'REJECTED', reason: 'A fresh six-digit step-up code is required.' }
+    }
     if (payload.supportingEvidenceId !== 'HC-2026-17') {
       return { status: 'REJECTED', reason: 'Supporting evidence could not be verified against the approved record.' }
     }

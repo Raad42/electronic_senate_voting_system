@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { api } from '../api/client'
+import { Link } from 'react-router-dom'
+import { ApiError, api, describeError } from '../api/client'
 import { StatusMessage } from '../components/StatusMessage'
 import type { AuditEvent } from '../types/api'
 
@@ -12,18 +13,25 @@ export function AuditPage() {
   const [selectedEvent, setSelectedEvent] = useState<AuditEvent | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [needsAuditor, setNeedsAuditor] = useState(false)
 
   async function loadEvents() {
     setLoading(true)
     setError('')
+    setNeedsAuditor(false)
     try {
       const result = await api.getAuditEvents()
       setEvents(result.events)
       setChainStatus(result.chainStatus === 'VALID' ? 'VALID' : 'INVALID')
       setSelectedEvent(null)
-    } catch {
+    } catch (err) {
       setChainStatus('INVALID')
-      setError('The audit service could not verify the event chain. Do not treat the displayed data as trusted.')
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        setNeedsAuditor(true)
+        setError(`Only an official signed in with the AUDITOR role can read the audit log. ${describeError(err, '')}`)
+      } else {
+        setError('The audit service could not verify the event chain. Do not treat the displayed data as trusted.')
+      }
     } finally {
       setLoading(false)
     }
@@ -47,7 +55,8 @@ export function AuditPage() {
         <span className={chainStatus === 'VALID' ? 'chain-pill' : 'chain-pill chain-pill-invalid'}>Chain: {chainStatus}</span>
       </div>
 
-      {error && <StatusMessage tone="error" title="Audit verification failed">{error}</StatusMessage>}
+      {error && <StatusMessage tone="error" title={needsAuditor ? 'Auditor access required' : 'Audit verification failed'}>{error}</StatusMessage>}
+      {needsAuditor && <Link className="button button-primary" to="/official/login?next=/audit">Sign in as auditor</Link>}
       {chainStatus === 'VALID' && !error && <StatusMessage tone="success" title="Hash chain verified">The returned audit events form a valid tamper-evident chain.</StatusMessage>}
 
       <div className="grid-3">

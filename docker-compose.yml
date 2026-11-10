@@ -1,0 +1,172 @@
+# Starts everything: `docker compose up -d --build` (after `python scripts/gen_keys.py` and creating .env)
+#
+# Network layout (who can talk to whom):
+#   public      nginx only; the one network with published ports
+#   mesh        nginx + the six services (internal: no internet access)
+#   roll_net    auth   <-> roll_db
+#   authdb_net  auth   <-> auth_db
+#   ballot_net  ballot <-> ballot_db
+#   audit_net   audit  <-> audit_db
+# So e.g. the Ballot service has no network route to the electoral roll at all (GR02).
+name: electronic-senate-voting
+
+x-service: &service
+  build:
+    context: .
+    dockerfile: services/Dockerfile
+  restart: unless-stopped
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
+x-common-env: &common-env
+  SV_ENVIRONMENT: ${SV_ENVIRONMENT:-production}
+  SV_TLS_ENABLED: "true"
+  SV_KEYS_DIR: /run/keys
+
+x-db: &db
+  image: postgres:16-alpine
+  restart: unless-stopped
+  environment: &db-env
+    POSTGRES_USER: owner
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U owner -d $$POSTGRES_DB"]
+    interval: 5s
+    timeout: 3s
+    retries: 20
+
+services:
+  # ------------------------------------------------------------------ edge
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./keys/nginx:/etc/nginx/keys:ro
+      - ${FRONTEND_DIST:-./nginx/placeholder}:/usr/share/nginx/html:ro
+    networks: [public, mesh]
+    depends_on: [auth, ballot, count, recount, audit]
+
+  # -------------------------------------------------------------- services
+  auth:
+    <<: *service
+    build: {context: ., dockerfile: services/Dockerfile, args: {SERVICE: auth}}
+    environment:
+      <<: *common-env
+      SV_SERVICE_NAME: auth
+      SV_DATABASE_URL: postgresql+psycopg://app:${AUTH_DB_APP_PASSWORD}@auth_db:5432/auth
+      SV_ROLL_DATABASE_URL: postgresql+psycopg://app:${ROLL_DB_APP_PASSWORD}@roll_db:5432/roll
+    volumes: ["./keys/auth:/run/keys:ro"]
+    networks: [mesh, roll_net, authdb_net]
+    depends_on:
+      auth_db: {condition: service_healthy}
+      roll_db: {condition: service_healthy}
+
+  ballot:
+    <<: *service
+    build: {context: ., dockerfile: services/Dockerfile, args: {SERVICE: ballot}}
+    environment:
+      <<: *common-env
+      SV_SERVICE_NAME: ballot
+      SV_DATABASE_URL: postgresql+psycopg://app:${BALLOT_DB_APP_PASSWORD}@ballot_db:5432/ballot
+    volumes: ["./keys/ballot:/run/keys:ro"]
+    networks: [mesh, ballot_net]
+    depends_on:
+      ballot_db: {condition: service_healthy}
+
+  count:
+    <<: *service
+    build: {context: ., dockerfile: services/Dockerfile, args: {SERVICE: count}}
+    environment:
+      <<: *common-env
+      SV_SERVICE_NAME: count
+    volumes: ["./keys/count:/run/keys:ro"]
+    networks: [mesh]
+
+  recount:
+    <<: *service
+    build: {context: ., dockerfile: services/Dockerfile, args: {SERVICE: recount}}
+    environment:
+      <<: *common-env
+      SV_SERVICE_NAME: recount
+    volumes: ["./keys/recount:/run/keys:ro"]
+    networks: [mesh]
+
+  audit:
+    <<: *service
+    build: {context: ., dockerfile: services/Dockerfile, args: {SERVICE: audit}}
+    environment:
+      <<: *common-env
+      SV_SERVICE_NAME: audit
+      SV_DATABASE_URL: postgresql+psycopg://app:${AUDIT_DB_APP_PASSWORD}@audit_db:5432/audit
+    volumes: ["./keys/audit:/run/keys:ro"]
+    networks: [mesh, audit_net]
+    depends_on:
+      audit_db: {condition: service_healthy}
+
+  pdp:
+    <<: *service
+    build: {context: ., dockerfile: services/Dockerfile, args: {SERVICE: pdp}}
+    environment:
+      <<: *common-env
+      SV_SERVICE_NAME: pdp
+    volumes: ["./keys/pdp:/run/keys:ro"]
+    networks: [mesh]
+
+  # ------------------------------------------------------------- databases
+  roll_db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: roll
+      POSTGRES_PASSWORD: ${ROLL_DB_OWNER_PASSWORD}
+      APP_DB_PASSWORD: ${ROLL_DB_APP_PASSWORD}
+    volumes: ["roll_data:/var/lib/postgresql/data", "./db/roll:/docker-entrypoint-initdb.d:ro"]
+    networks: [roll_net]
+
+  auth_db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: auth
+      POSTGRES_PASSWORD: ${AUTH_DB_OWNER_PASSWORD}
+      APP_DB_PASSWORD: ${AUTH_DB_APP_PASSWORD}
+    volumes: ["auth_data:/var/lib/postgresql/data", "./db/auth:/docker-entrypoint-initdb.d:ro"]
+    networks: [authdb_net]
+
+  ballot_db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: ballot
+      POSTGRES_PASSWORD: ${BALLOT_DB_OWNER_PASSWORD}
+      APP_DB_PASSWORD: ${BALLOT_DB_APP_PASSWORD}
+    volumes: ["ballot_data:/var/lib/postgresql/data", "./db/ballot:/docker-entrypoint-initdb.d:ro"]
+    networks: [ballot_net]
+
+  audit_db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: audit
+      POSTGRES_PASSWORD: ${AUDIT_DB_OWNER_PASSWORD}
+      APP_DB_PASSWORD: ${AUDIT_DB_APP_PASSWORD}
+    volumes: ["audit_data:/var/lib/postgresql/data", "./db/audit:/docker-entrypoint-initdb.d:ro"]
+    networks: [audit_net]
+
+networks:
+  public: {}
+  mesh: {internal: true}
+  roll_net: {internal: true}
+  authdb_net: {internal: true}
+  ballot_net: {internal: true}
+  audit_net: {internal: true}
+
+volumes:
+  roll_data:
+  auth_data:
+  ballot_data:
+  audit_data:

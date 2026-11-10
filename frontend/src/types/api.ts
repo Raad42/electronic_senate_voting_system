@@ -36,6 +36,18 @@ export type OfficialSession = {
     electionId: string
     countId: string | null
   }
+  operatorId?: string
+  /** Echoed back in the X-CSRF-Token header on every state-changing request. */
+  csrfToken?: string
+}
+
+export type OfficialRole = 'ELECTION_OFFICIAL' | 'COUNT_OPERATOR' | 'RECOUNT_DELEGATE' | 'AUDITOR'
+
+export type OfficialLogin = {
+  username: string
+  password: string
+  otp: string
+  role: OfficialRole
 }
 
 export type ExclusionRequest = {
@@ -45,6 +57,8 @@ export type ExclusionRequest = {
   recountPhase: 'OPEN' | 'CLOSED'
   exclusionGround: 'COURT_ORDER' | 'OTHER'
   supportingEvidenceId: string
+  /** Fresh one-time code: entering an exclusion is irreversible, so it needs step-up. */
+  stepUpCode: string
 }
 
 export type ExclusionResponse = {
@@ -52,6 +66,8 @@ export type ExclusionResponse = {
   exclusionId?: string
   auditEventId?: string
   reason?: string
+  excludedCandidates?: string[]
+  elected?: string[]
 }
 
 export type AuditEvent = {

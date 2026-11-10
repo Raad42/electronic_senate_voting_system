@@ -1,0 +1,8 @@
+# Dev tooling for the whole repo (each service's runtime deps live in shared/pyproject.toml).
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["shared"]
+addopts = "-q --ignore=tests/e2e"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]

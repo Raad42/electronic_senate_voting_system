@@ -6,12 +6,17 @@ import type {
   ElectorAuthorisation,
   ExclusionRequest,
   ExclusionResponse,
+  OfficialLogin,
   OfficialSession,
 } from '../types/api'
 import { mockApi } from '../mocks/mockApi'
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api'
 const useMockApi = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true'
+
+// The official session lives in an HttpOnly cookie the page cannot read. The CSRF synchroniser
+// token comes back in the session response and is kept in memory only (never localStorage).
+let csrfToken: string | null = null
 
 export class ApiError extends Error {
   readonly status: number
@@ -28,18 +33,25 @@ export class ApiError extends Error {
 }
 
 export const api = {
-  obtainElectorAuthorisation: (state: string): Promise<ElectorAuthorisation> =>
+  obtainElectorAuthorisation: (
+    state: string,
+    voterId: string,
+    password: string,
+    electionId: string,
+  ): Promise<ElectorAuthorisation> =>
     useMockApi
       ? mockApi.obtainElectorAuthorisation(state)
       : request<ElectorAuthorisation>('/auth/elector/authorisation', {
           method: 'POST',
-          body: JSON.stringify({ state }),
+          body: JSON.stringify({ state, voterId, password, electionId }),
         }),
 
   getBallotConfig: (state: string, electionId: string): Promise<BallotConfig> =>
     useMockApi
       ? mockApi.getBallotConfig(state, electionId)
-      : request<BallotConfig>(`/ballots/config?state=${state}&electionId=${electionId}`),
+      : request<BallotConfig>(
+          `/ballots/config?state=${encodeURIComponent(state)}&electionId=${encodeURIComponent(electionId)}`,
+        ),
 
   submitBallot: (
     authorisationToken: string,
@@ -61,8 +73,23 @@ export const api = {
           }),
         }),
 
-  getOfficialSession: (): Promise<OfficialSession> =>
-    useMockApi ? mockApi.getOfficialSession() : request<OfficialSession>('/auth/session'),
+  officialLogin: async (credentials: OfficialLogin): Promise<OfficialSession> => {
+    if (useMockApi) return mockApi.getOfficialSession()
+    await request<unknown>('/auth/officials/login', { method: 'POST', body: JSON.stringify(credentials) })
+    return api.getOfficialSession()
+  },
+
+  officialLogout: async (): Promise<void> => {
+    if (!useMockApi) await request<unknown>('/auth/officials/logout', { method: 'POST' })
+    csrfToken = null
+  },
+
+  getOfficialSession: async (): Promise<OfficialSession> => {
+    if (useMockApi) return mockApi.getOfficialSession()
+    const session = await request<OfficialSession>('/auth/session')
+    csrfToken = session.csrfToken ?? null
+    return session
+  },
 
   submitExclusion: (payload: ExclusionRequest): Promise<ExclusionResponse> =>
     useMockApi
@@ -79,10 +106,13 @@ export const api = {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const method = (options.method ?? 'GET').toUpperCase()
   const response = await fetch(`${baseUrl}${path}`, {
     ...options,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
+      ...(method !== 'GET' && csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
       ...(options.headers ?? {}),
     },
   })
@@ -93,8 +123,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     const retryAfterSeconds = retryAfterHeader ? Number(retryAfterHeader) : undefined
     const message = errorBody?.error?.message ?? `Request failed with status ${response.status}`
     const code = errorBody?.error?.code ?? `HTTP_${response.status}`
+    if (response.status === 401) csrfToken = null
     throw new ApiError(response.status, code, message, Number.isFinite(retryAfterSeconds) ? retryAfterSeconds : undefined)
   }
 
   return response.json() as Promise<T>
+}
+
+/** A user-facing sentence for any failed request. */
+export function describeError(error: unknown, fallback: string): string {
+  if (!(error instanceof ApiError)) return fallback
+  if (error.status === 429) {
+    return `Too many requests. Try again in ${error.retryAfterSeconds ?? 60} seconds.`
+  }
+  return error.message || fallback
 }

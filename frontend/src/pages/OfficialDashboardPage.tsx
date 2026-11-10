@@ -1,16 +1,32 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { api } from '../api/client'
+import { Link, useNavigate } from 'react-router-dom'
+import { ApiError, api, describeError } from '../api/client'
 import { StatusMessage } from '../components/StatusMessage'
 import type { OfficialSession } from '../types/api'
 
 export function OfficialDashboardPage() {
+  const navigate = useNavigate()
   const [session, setSession] = useState<OfficialSession | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    api.getOfficialSession().then(setSession).finally(() => setLoading(false))
-  }, [])
+    api.getOfficialSession()
+      .then(setSession)
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) {
+          navigate('/official/login?next=/official', { replace: true })
+          return
+        }
+        setError(describeError(err, 'Your official session could not be verified.'))
+      })
+      .finally(() => setLoading(false))
+  }, [navigate])
+
+  async function signOut() {
+    await api.officialLogout().catch(() => undefined)
+    navigate('/official/login', { replace: true })
+  }
 
   return (
     <section className="page-stack">
@@ -24,21 +40,23 @@ export function OfficialDashboardPage() {
       </div>
 
       {loading && <StatusMessage tone="info" title="Loading session">Checking your authorised scope.</StatusMessage>}
+      {error && <StatusMessage tone="error" title="Session unavailable">{error}</StatusMessage>}
 
       {session && (
         <>
           <div className="grid-3">
             <div className="metric-card"><span>Role</span><strong>{session.role}</strong></div>
-            <div className="metric-card"><span>State scope</span><strong>{session.scope.state}</strong></div>
-            <div className="metric-card"><span>Election</span><strong>{session.scope.electionId}</strong></div>
+            <div className="metric-card"><span>State scope</span><strong>{session.scope.state ?? 'All (read-only)'}</strong></div>
+            <div className="metric-card"><span>Election</span><strong>{session.scope.electionId ?? 'All (read-only)'}</strong></div>
           </div>
           <div className="panel">
-            <div className="panel-heading"><h3>Protected actions</h3><span className="status-dot">Session active</span></div>
+            <div className="panel-heading"><h3>Protected actions</h3><span className="status-dot">Session active{session.operatorId ? ` · ${session.operatorId}` : ''}</span></div>
             <div className="action-list">
               <div><strong>Submit candidate exclusion</strong><span>Requires evidence, scope validation and audit logging.</span><Link to="/official/recount">Open</Link></div>
               <div><strong>Review audit chain</strong><span>Inspect count and recount events without ballot identity links.</span><Link to="/audit">Open</Link></div>
             </div>
           </div>
+          <button className="button button-secondary" onClick={() => void signOut()}>Sign out</button>
         </>
       )}
     </section>

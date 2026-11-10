@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { api } from '../api/client'
+import { FormEvent, useEffect, useState } from 'react'
+import { api, describeError } from '../api/client'
 import { StatusMessage } from '../components/StatusMessage'
 import type { BallotConfig, BallotSubmission, ElectorAuthorisation } from '../types/api'
 
@@ -10,6 +10,8 @@ type BallotStage = 'authorise' | 'ballot' | 'review' | 'receipt'
 export function BallotPage() {
   const [stage, setStage] = useState<BallotStage>('authorise')
   const [authorisation, setAuthorisation] = useState<ElectorAuthorisation | null>(null)
+  const [voterId, setVoterId] = useState('')
+  const [password, setPassword] = useState('')
   const [config, setConfig] = useState<BallotConfig | null>(null)
   const [selectedCandidate, setSelectedCandidate] = useState('')
   const [submission, setSubmission] = useState<BallotSubmission | null>(null)
@@ -26,15 +28,17 @@ export function BallotPage() {
       .finally(() => setLoading(false))
   }, [stage, config])
 
-  async function beginAuthorisation() {
+  async function beginAuthorisation(event: FormEvent) {
+    event.preventDefault()
     setLoading(true)
     setError('')
     try {
-      const result = await api.obtainElectorAuthorisation(state)
+      const result = await api.obtainElectorAuthorisation(state, voterId.trim(), password, electionId)
       setAuthorisation(result)
+      setPassword('')
       setStage('ballot')
-    } catch {
-      setError('The voting authorisation could not be issued. Please try again.')
+    } catch (err) {
+      setError(describeError(err, 'The voting authorisation could not be issued. Please try again.'))
     } finally {
       setLoading(false)
     }
@@ -54,8 +58,8 @@ export function BallotPage() {
       )
       setSubmission(result)
       setStage('receipt')
-    } catch {
-      setError('The ballot was not accepted. Follow the server response before retrying.')
+    } catch (err) {
+      setError(describeError(err, 'The ballot was not accepted. Follow the server response before retrying.'))
     } finally {
       setSubmitting(false)
     }
@@ -87,11 +91,15 @@ export function BallotPage() {
         <div className="panel flow-panel">
           <span className="step-icon">01</span>
           <h3>Get one ballot authorisation</h3>
-          <p>The server will issue a short-lived, single-use capability for the {state} election. It does not contain your elector identifier.</p>
-          <button className="button button-primary" onClick={beginAuthorisation} disabled={loading}>
-            {loading ? 'Checking eligibility…' : 'Continue to secure ballot'}
-          </button>
-          <p className="helper-text">The capability expires after 15 minutes and can be consumed only once.</p>
+          <p>Sign in with your AEC voter ID. The server checks you are enrolled in {state} and have not voted, then issues a short-lived, single-use capability. It does not contain your elector identifier.</p>
+          <form className="form-stack" onSubmit={beginAuthorisation}>
+            <label>Voter ID<input value={voterId} onChange={(event) => setVoterId(event.target.value)} autoComplete="username" placeholder="SA-0001" maxLength={32} required disabled={loading} /></label>
+            <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" maxLength={256} required disabled={loading} /></label>
+            <button className="button button-primary" type="submit" disabled={loading || !voterId || !password}>
+              {loading ? 'Checking eligibility…' : 'Continue to secure ballot'}
+            </button>
+          </form>
+          <p className="helper-text">The capability expires after 15 minutes and can be consumed only once. You can only receive one per election.</p>
         </div>
       )}
 
