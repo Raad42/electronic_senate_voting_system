@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 export function HomePage() {
+  // The landing page introduces the prototype flows and security boundaries.
   return (
     <section className="page-stack">
       <div className="hero-card">

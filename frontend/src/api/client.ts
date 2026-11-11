@@ -12,6 +12,7 @@ import type {
 import { mockApi } from '../mocks/mockApi'
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api'
+// Switch between the live backend and the local dummy API from the environment.
 const useMockApi = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true'
 
 // The official session lives in an HttpOnly cookie the page cannot read. The CSRF synchroniser
@@ -106,6 +107,7 @@ export const api = {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  // Keep all live API requests going through one response and error path.
   const method = (options.method ?? 'GET').toUpperCase()
   const response = await fetch(`${baseUrl}${path}`, {
     ...options,

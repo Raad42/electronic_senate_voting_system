@@ -1,3 +1,4 @@
+// Legacy shared types kept for older prototype files.
 export type Candidate = {
   candidateId: string
   displayName: string

@@ -10,6 +10,7 @@ import { RecountPage } from './pages/RecountPage'
 import { ResiliencePage } from './pages/ResiliencePage'
 
 export default function App() {
+  // Keep all route definitions inside the shared application shell.
   return (
     <AppShell>
       <Routes>

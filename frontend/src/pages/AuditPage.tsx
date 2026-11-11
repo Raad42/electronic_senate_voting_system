@@ -15,6 +15,7 @@ export function AuditPage() {
   const [error, setError] = useState('')
   const [needsAuditor, setNeedsAuditor] = useState(false)
 
+  // Load and verify the audit chain before showing event details.
   async function loadEvents() {
     setLoading(true)
     setError('')

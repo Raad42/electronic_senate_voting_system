@@ -11,6 +11,7 @@ body { margin: 0; min-width: 320px; }
 button, input, select { font: inherit; }
 a { color: inherit; }
 
+/* The shell fills the viewport so the footer can sit at the bottom. */
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
 .topbar { padding: 2.5rem clamp(1.25rem, 5vw, 5rem) 1.7rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; background: #10233f; color: white; }
 .topbar h1 { margin: .25rem 0 0; font-size: clamp(1.45rem, 2.6vw, 2.25rem); letter-spacing: -.03em; }
@@ -24,6 +25,7 @@ a { color: inherit; }
 .navigation { padding: .7rem clamp(1.25rem, 5vw, 5rem); display: flex; gap: .35rem; flex-wrap: wrap; background: white; border-bottom: 1px solid #d9e0eb; }
 .nav-link { padding: .65rem .85rem; border-radius: .55rem; text-decoration: none; color: #52627b; font-size: .92rem; font-weight: 700; }
 .nav-link:hover, .nav-link-active { background: #e9f0fb; color: #1f4d88; }
+/* Flex growth keeps route content between the header and footer. */
 .main-content { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; padding: 2.3rem 0 4rem; flex: 1; }
 .page-stack { display: flex; flex-direction: column; gap: 1.35rem; }
 .narrow-page { max-width: 820px; margin: 0 auto; }
@@ -122,6 +124,7 @@ td small { margin-top: .25rem; font-size: .78rem; }
 code { color: #486380; font-size: .78rem; }
 .empty-state { padding: 5rem 1rem; text-align: center; }
 .empty-state p { color: #64738a; margin-bottom: 1.3rem; }
+/* Small muted footer text keeps the page ending visually light. */
 .footer { display: flex; justify-content: space-between; gap: 1rem; padding: 1.2rem clamp(1.25rem, 5vw, 5rem); color: #718097; background: white; border-top: 1px solid #dce3ed; font-size: .78rem; }
 
 @media (max-width: 720px) {

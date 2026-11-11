@@ -1,5 +1,6 @@
 import type { AuditEvent, BallotConfig, BallotSubmission, ElectorAuthorisation, OfficialSession } from '../types/api'
 
+// Legacy dummy API kept for older prototype files; it does not call the backend.
 const wait = (milliseconds = 300) => new Promise((resolve) => setTimeout(resolve, milliseconds))
 
 export const mockApi = {

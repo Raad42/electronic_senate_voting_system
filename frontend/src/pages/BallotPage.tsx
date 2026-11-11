@@ -19,6 +19,7 @@ export function BallotPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  // Fetch the approved ballot configuration after authorisation succeeds.
   useEffect(() => {
     if (stage !== 'ballot' || config) return
     setLoading(true)
@@ -28,6 +29,7 @@ export function BallotPage() {
       .finally(() => setLoading(false))
   }, [stage, config])
 
+  // Request one short-lived, single-use voting capability.
   async function beginAuthorisation(event: FormEvent) {
     event.preventDefault()
     setLoading(true)
@@ -44,6 +46,7 @@ export function BallotPage() {
     }
   }
 
+  // Submit the reviewed selection and show the server receipt.
   async function submitBallot() {
     if (!config || !authorisation || !selectedCandidate || submitting) return
     setSubmitting(true)

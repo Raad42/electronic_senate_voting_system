@@ -10,6 +10,7 @@ export function OfficialDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // Load the official scope before exposing protected actions.
   useEffect(() => {
     api.getOfficialSession()
       .then(setSession)
@@ -23,6 +24,7 @@ export function OfficialDashboardPage() {
       .finally(() => setLoading(false))
   }, [navigate])
 
+  // End the session before returning to the official sign-in page.
   async function signOut() {
     await api.officialLogout().catch(() => undefined)
     navigate('/official/login', { replace: true })

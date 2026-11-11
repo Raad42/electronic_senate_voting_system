@@ -10,6 +10,7 @@ type FailureCase = {
   tone: 'error' | 'info'
 }
 
+// These fixed cases preview safe frontend handling of backend failures.
 const failureCases: FailureCase[] = [
   {
     status: '401',

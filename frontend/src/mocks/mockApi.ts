@@ -1,7 +1,9 @@
 import type { AuditEvent, BallotConfig, BallotSubmission, ElectorAuthorisation, ExclusionRequest, ExclusionResponse, OfficialSession } from '../types/api'
 
+// Dummy API only: these responses support local frontend development and demos.
 const wait = (milliseconds = 300) => new Promise((resolve) => setTimeout(resolve, milliseconds))
 
+// Simulate a short network delay so the demo follows an asynchronous flow.
 export const mockApi = {
   async obtainElectorAuthorisation(state: string): Promise<ElectorAuthorisation> {
     await wait()

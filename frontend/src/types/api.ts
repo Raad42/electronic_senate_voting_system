@@ -1,3 +1,4 @@
+// Shared frontend data shapes for API requests and responses.
 export type Candidate = {
   candidateId: string
   displayName: string

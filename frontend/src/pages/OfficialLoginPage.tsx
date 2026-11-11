@@ -26,6 +26,7 @@ export function OfficialLoginPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
+  // Submit credentials and return only to an internal route.
   async function submit(event: FormEvent) {
     event.preventDefault()
     if (submitting) return

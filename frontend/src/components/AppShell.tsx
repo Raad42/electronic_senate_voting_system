@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import type { PropsWithChildren } from 'react'
 
 export function AppShell({ children }: PropsWithChildren) {
+  // Keep the shared shell around every route.
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -12,6 +13,7 @@ export function AppShell({ children }: PropsWithChildren) {
         <span className="environment-badge">Prototype mode</span>
       </header>
 
+      {/* Keep route navigation separate from page content. */}
       <nav className="navigation" aria-label="Primary navigation">
         <NavLink to="/" end className={navClassName}>Overview</NavLink>
         <NavLink to="/voter/ballot" className={navClassName}>Voter ballot</NavLink>
@@ -21,8 +23,10 @@ export function AppShell({ children }: PropsWithChildren) {
         <NavLink to="/resilience" className={navClassName}>Resilience</NavLink>
       </nav>
 
+      {/* Swap each page into the same main content region. */}
       <main className="main-content">{children}</main>
 
+      {/* Keep the prototype note at the bottom of every page. */}
       <footer className="footer">
         <span>G3 prototype</span>
         <span>Backend remains the security authority</span>

@@ -16,6 +16,7 @@ export function RecountPage() {
   const [error, setError] = useState('')
   const [sessionEnded, setSessionEnded] = useState(false)
 
+  // Verify the delegate session before showing the exclusion form.
   useEffect(() => {
     api.getOfficialSession()
       .then(setSession)
@@ -29,6 +30,7 @@ export function RecountPage() {
       .finally(() => setLoading(false))
   }, [navigate])
 
+  // Send the exclusion request for backend scope and evidence checks.
   async function submit(event: FormEvent) {
     event.preventDefault()
     if (!session || submitting || result?.status === 'APPROVED') return

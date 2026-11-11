@@ -8,6 +8,7 @@ import type {
 } from '../types/api'
 import { mockApi } from '../mocks/mockApi'
 
+// Legacy API client kept for older prototype files.
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api'
 const useMockApi = (import.meta.env.VITE_USE_MOCK_API ?? 'true') === 'true'
 
