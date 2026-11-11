@@ -2,10 +2,10 @@
 
 Zak Valente
 
-COMP SCI 4024 Secure Software Engineering: Electronic Senate Voting System prototype.
+COMP SCI 4024 Secure Software Engineering: Electronic Senate Voting System.
 
 * **Frontend:** `frontend/`, React + TypeScript.
-* **Backend:** six FastAPI services (auth, ballot, count, recount, audit, pdp) behind Nginx, with one PostgreSQL database per data store, run with Docker. The full backend design is in [BACKEND_README.md](BACKEND_README.md).
+* **Backend:** six FastAPI services (auth, ballot, count, recount, audit, pdp) behind Nginx, with separate PostgreSQL databases, run with Docker.
 
 The backend serves the frontend's API contract (`frontend/src/api/client.ts`) directly. See "Frontend API" below.
 
@@ -16,28 +16,21 @@ The backend serves the frontend's API contract (`frontend/src/api/client.ts`) di
 Needs Docker Desktop, Python 3.11 or newer, and Node 20 or newer.
 
 ```bash
-# 1. Backend tooling and keys (once)
+# 1. Prepare the Python environment once
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/python scripts/gen_keys.py
-cp .env.example .env            # then set every *_PASSWORD to a random value
-                                # and uncomment FRONTEND_DIST=./frontend/dist
 
-# 2. Build the frontend (Nginx serves frontend/dist)
-cd frontend && npm install && cp .env.example .env && npm run build && cd ..
-
-# 3. Start everything
-docker compose up -d --build
-
-# 4. Create the demo officials and show their one-time codes (leave this running)
-.venv/bin/python scripts/demo_officials.py
+# 2. Build the frontend, create fresh demo data, and start everything
+bash scripts/presentation_setup.sh --reset-env --reset-data
 ```
 
-Open **https://localhost:8443**. The certificate comes from the project's own development CA, so the browser shows a warning; accept it, or trust `keys/nginx/ca.crt`.
+The setup script creates `.env`, generates keys, builds `frontend/dist`, resets the database volumes, starts Nginx and all backend services, and prints the demo official passwords and live MFA codes. Keep its terminal open so the codes remain visible.
 
-To start over with fresh data, run `docker compose down -v && docker compose up -d`, then step 4 again.
+Open **https://localhost:8443**. The certificate comes from the project's development CA, so accept the browser warning once, or trust `keys/nginx/ca.crt`.
 
-**Frontend development with hot reload:** `cd frontend && npm run dev` gives http://localhost:5173, with `/api` proxied to the stack. Official sign-in is most reliable on https://localhost:8443, because the session cookie is `Secure`.
+To start over with fresh presentation data, run the same `presentation_setup.sh --reset-env --reset-data` command again.
+
+**Optional frontend development:** `cd frontend && npm run dev` gives `http://localhost:5173` and proxies `/api` to the Docker stack. For the presentation, use `https://localhost:8443`, where Nginx serves the production build and secure cookies work correctly.
 
 ---
 

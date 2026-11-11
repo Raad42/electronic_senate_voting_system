@@ -1,0 +1,99 @@
+Here's the final demo script, in order and ready to read.
+
+🎬 Demo script (7:00) · Arya only
+
+Before recording
+
+- Open Docker Desktop.
+- Use two terminals: one for the setup output and one for later admin commands.
+- Use the browser at `https://localhost:8443`.
+- Zoom the browser to 125%, enlarge terminal text, and turn notifications off.
+- The setup command builds the frontend from the real API configuration; no mock data is used.
+
+SETUP TERMINAL — build and start everything
+
+```bash
+cd /Users/aryaranjan/electronic_senate_voting_system
+bash scripts/presentation_setup.sh --reset-env --reset-data
+```
+
+Hi, I'll start by showing how to run the system, the same steps a tutor would follow on their own machine. We go into the project folder and activate the Python environment. Then this one setup script prepares everything. It resets the configuration and the data so every run starts from a clean election, and it starts all the containers with Docker
+
+[DO] In the command terminal, run:
+
+```bash
+cd /Users/aryaranjan/electronic_senate_voting_system
+docker compose ps
+```
+
+"This confirms the gateway, six FastAPI services, and the four separate PostgreSQL databases are running. The databases are separated so each service can use least-privilege access."
+
+"The setup finishes by creating the demo official accounts and printing their current one-time codes. In a real deployment, these codes would come from an authenticator app. I keep this terminal open so the codes remain visible."
+
+🎤 ARYA · Setup and voter flow · 0:00–2:15
+
+[DO] Open `https://localhost:8443` and accept the local certificate warning once.
+
+"I will now demonstrate the system from a clean start. The site is served through HTTPS on port 8443, with Nginx acting as the gateway in front of the services."
+
+[DO] Open the voter flow → enter `SA-0001` and `sa-voter-0001` → select **Continue to secure ballot**.
+
+"I start as a voter, demonstrating GR01 and GR02. The server checks that this voter is enrolled in South Australia and has not already voted. It then issues a short-lived, single-use authorisation token. The token proves that one ballot is allowed, but it does not contain the voter's identity."
+
+[DO] Select candidates → review the ballot → submit the final ballot.
+
+"I choose my ranked candidates and submit the ballot. The ballot is encrypted before storage, while the voter identity remains separate from the ballot data. The receipt confirms submission without revealing the vote."
+
+[DO] Return to the voter flow and try `SA-0001` again.
+
+"Now I try to vote again with the same enrolment. The server refuses the request because the authorisation has already been consumed or the voter has already been issued a ballot token. This check is enforced by the backend, not just by the interface, so refreshing the page cannot bypass it."
+
+🎤 ARYA · Count and recount · 2:15–4:25
+
+[DO] In the command terminal, run:
+
+```bash
+.venv/bin/python scripts/close_and_count.py
+```
+
+"Next, I close voting and run the count. This administrative operation is performed through the secure backend path. Starting the count is irreversible, so the official path requires authentication and a fresh step-up code. The count result is also recorded in the audit chain before it can be released."
+
+[DO] Show the count result in the terminal or official view.
+
+"The count has completed and the result is available to the authorised operator."
+
+[DO] Open the official console → sign in with `rd.sa`, its password, the current MFA code, and the **Recount delegate** role.
+
+"I now sign in as a recount delegate. Officials use a password and one-time MFA code, and each session selects one active role. The session is limited to the election, state, and count scope contained in the authorisation. This demonstrates the controlled-authority part of GR03."
+
+[DO] Open **Recount** → choose `CAND-041 (SA)` → choose **Court of Disputed Returns order** → enter evidence `HC-2026-17` → enter a fresh step-up code → select **Confirm exclusion**.
+
+"The delegate submits a candidate exclusion during the open recount phase. The server verifies the exclusion ground and supporting court-order evidence, then checks the election identifier, state, candidate membership, recount phase, and delegate role. Because this action changes the recount result and cannot be undone, a fresh step-up code is required. The exclusion is accepted and written to the audit log."
+
+[DO] Optionally retry with an incorrect step-up code, such as `000000`.
+
+"If the step-up code is wrong or expires, the request is denied with no state change. The failed attempt is recorded, and the protected action is not performed."
+
+🎤 ARYA · Audit and availability · 4:25–6:25
+
+[DO] Open the official console as `aud.demo` with the **Auditor** role → open **Audit log**.
+
+"Finally, I demonstrate GR05. The auditor has read-only access to the audit view. We can see the count, recount, successful operations, and refused attempts. Each event includes the actor, scope, timestamp, and hash value, and each event is chained to the previous one."
+
+[DO] Select **Verify chain again** and point to **Chain: VALID**.
+
+"The chain verifies as valid. If an event were modified or removed, the hash relationship would fail and the result-release process would be blocked. The log records actions and outcomes, but it does not expose a voter's identity or ballot selections."
+
+[DO] In the command terminal, run:
+
+```bash
+for i in $(seq 1 30); do curl -sk -o /dev/null -w "%{http_code} " -X POST https://localhost:8443/api/auth/elector/authorisation -H 'Content-Type: application/json' -d '{"state":"SA","voterId":"SA-0005","password":"wrong","electionId":"senate-2026"}'; done; echo
+```
+
+"The last requirement is GR04, availability and resilience to denial of service. This sends thirty invalid authorisation requests through the gateway. The failed requests are rejected, and once the threshold is reached the rate limiter returns HTTP 429, meaning too many requests. The service remains available for legitimate users."
+
+"We deliberately do not lock a voter account based on repeated failures, because that could let an attacker prevent a legitimate person from voting. Officials have a separate policy: repeated failed official sign-ins are temporarily locked."
+
+🎤 ARYA · Close · 6:25–7:00
+
+"That completes the live demonstration of all five requirements: eligibility and single-use voting, ballot secrecy, scope-limited recount authority, denial-of-service resilience, and tamper-evident audit logging. One setup command built the frontend and started the full stack, while every demonstrated decision was validated by the backend services behind the HTTPS gateway. Thank you."

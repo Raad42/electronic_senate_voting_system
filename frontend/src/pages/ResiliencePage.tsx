@@ -86,7 +86,7 @@ export function ResiliencePage() {
       </div>
 
       <div className="panel">
-        <div className="panel-heading"><h3>Prototype boundary</h3><span className="status-dot">Backend enforced</span></div>
+        <div className="panel-heading"><h3>Security boundary</h3><span className="status-dot">Backend enforced</span></div>
         <p className="helper-text">This screen documents and demonstrates frontend handling. Actual rate limiting, authentication and fail-closed decisions remain enforced by the API and Nginx layer.</p>
       </div>
     </section>

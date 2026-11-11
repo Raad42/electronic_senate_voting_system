@@ -23,7 +23,6 @@
     "src/styles.css",
     "src/api/**/*.ts",
     "src/components/**/*.tsx",
-    "src/mocks/**/*.ts",
     "src/pages/**/*.tsx",
     "src/types/**/*.ts"
   ]

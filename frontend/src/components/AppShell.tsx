@@ -8,9 +8,8 @@ export function AppShell({ children }: PropsWithChildren) {
       <header className="topbar">
         <div>
           <p className="eyebrow">Electronic Senate Voting System</p>
-          <h1>Secure voting prototype</h1>
+          <h1>Secure voting system</h1>
         </div>
-        <span className="environment-badge">Prototype mode</span>
       </header>
 
       {/* Keep route navigation separate from page content. */}
@@ -26,9 +25,9 @@ export function AppShell({ children }: PropsWithChildren) {
       {/* Swap each page into the same main content region. */}
       <main className="main-content">{children}</main>
 
-      {/* Keep the prototype note at the bottom of every page. */}
+      {/* Keep the system identity at the bottom of every page. */}
       <footer className="footer">
-        <span>G3 prototype</span>
+        <span>Electronic Senate Voting System</span>
         <span>Backend remains the security authority</span>
       </footer>
     </div>

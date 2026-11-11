@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
 
 export function HomePage() {
-  // The landing page introduces the prototype flows and security boundaries.
+  // The landing page introduces the user flows and security boundaries.
   return (
     <section className="page-stack">
       <div className="hero-card">
-        <p className="eyebrow">Phase 1 frontend foundation</p>
+        <p className="eyebrow">Secure election operations</p>
         <h2>One clear interface for secure election operations.</h2>
         <p className="hero-copy">
-          This prototype separates the voter journey from official and audit operations. Server
+          This system separates the voter journey from official and audit operations. Server
           responses remain authoritative for every security decision.
         </p>
         <div className="hero-actions">
