@@ -22,64 +22,17 @@ Needs Docker Desktop, Python 3.11 or newer, and Node 20 or newer.
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 
-# 2. Build the frontend, create fresh demo data, and start everything
+# 2. Build the frontend, reset local data, and start everything
 bash scripts/presentation_setup.sh --reset-env --reset-data
 ```
 
-The setup script creates `.env`, generates keys, builds `frontend/dist`, resets the database volumes, starts Nginx and all backend services, and prints the demo official passwords and live MFA codes. Keep its terminal open so the codes remain visible.
+The setup script creates `.env`, generates keys, builds `frontend/dist`, resets the database volumes, starts Nginx and all backend services, and prints the generated official passwords and live MFA codes. Keep its terminal open so the codes remain visible.
 
 Open **https://localhost:8443**. The certificate comes from the project's development CA, so accept the browser warning once, or trust `keys/nginx/ca.crt`.
 
-To start over with fresh presentation data, run the same `presentation_setup.sh --reset-env --reset-data` command again.
+To start over with fresh local data, run the same `presentation_setup.sh --reset-env --reset-data` command again.
 
-**Optional frontend development:** `cd frontend && npm run dev` gives `http://localhost:5173` and proxies `/api` to the Docker stack. For the presentation, use `https://localhost:8443`, where Nginx serves the production build and secure cookies work correctly.
-
----
-
-## Demo accounts
-
-**Voters** (election `senate-2026`). Passwords are for the demo only.
-
-| Voter ID | Password | State |
-|---|---|---|
-| SA-0001 … SA-0005 | sa-voter-0001 … sa-voter-0005 | SA |
-| VIC-0002 | vic-voter-0002 | VIC (refused on the SA ballot page) |
-
-**Officials.** `scripts/demo_officials.py` prints each username, its password and its live one-time code.
-
-| Username | Role | Scope |
-|---|---|---|
-| `eo.sa` | ELECTION_OFFICIAL | senate-2026 / SA |
-| `co.sa` | COUNT_OPERATOR | senate-2026 / SA |
-| `rd.sa` | RECOUNT_DELEGATE | senate-2026 / SA |
-| `multi.sa` | COUNT_OPERATOR + RECOUNT_DELEGATE (one active per session) | senate-2026 / SA |
-| `aud.demo` | AUDITOR | read-only, all |
-
-**Court orders** (supporting evidence IDs), signed with the court key by `scripts/gen_keys.py`:
-
-| Evidence ID | Excludes |
-|---|---|
-| HC-2026-17 | CAND-041, senate-2026 SA |
-| HC-2026-18 | CAND-052, senate-2026 VIC |
-
-Add more with `.venv/bin/python scripts/sign_exclusion.py --order HC-2026-19 --election senate-2026 --state SA --exclude CAND-063 --issued-on 2026-11-10 --register`.
-
----
-
-## Demo walkthrough
-
-1. **GR01 and GR02, voting.** Open *Voter flow*, sign in as SA-0001, choose a candidate and submit. You get a receipt. Signing in as SA-0001 again is refused with "A vote is already recorded against this enrolment".
-2. **Close voting and count.** The frontend has no screen for these steps yet. This script signs in as `eo.sa` and `co.sa`, with a step-up code for the count, through Nginx:
-   ```bash
-   .venv/bin/python scripts/close_and_count.py
-   ```
-   (`scripts/demo_election.py` is the original narrated walkthrough. It runs the separate SEN2028 / NSW election.)
-3. **GR03, recount.** Sign in as `rd.sa` (Recount delegate), open the recount workflow, and use evidence `HC-2026-17` with a **new** one-time code. The exclusion is approved, and the recount result no longer elects CAND-041. Try the following:
-   * CAND-052 (VIC) is rejected because it is not named in the SA court order.
-   * A made-up evidence ID is rejected because it can't be verified.
-   * A wrong one-time code ends the session (Milestone 2, Table 11).
-4. **GR05, audit.** Sign in as `aud.demo` (Auditor) and open *Audit*. The page shows the hash-chained events and "Chain: VALID". Other roles get "Auditor access required".
-5. **GR04, availability.** Rapid repeated requests get `429 RATE_LIMITED` with `Retry-After: 60`. The *Resilience* page explains how the UI handles it.
+**Optional frontend development:** `cd frontend && npm run dev` gives `http://localhost:5173` and proxies `/api` to the Docker stack. For the integrated system, use `https://localhost:8443`, where Nginx serves the production build and secure cookies work correctly.
 
 ---
 
