@@ -1,3 +1,23 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Explains how the interface handles refusals such as 401, 403, 408, 409, 429 and 503
+ *
+ * Requirements:
+ *     GR04 - a rate-limited user is told to wait instead of retrying straight away
+ *
+ * Run:
+ *     cd frontend && npm run dev
+ *     Then open /resilience
+ *
+ * Usage example:
+ *     Press Preview behaviour on the 429 card
+ *
+ * Output:
+ *     Shows "Too many requests" and explains that the app waits and shows a retry message rather
+ *     than sending more requests
+ */
 import { useState } from 'react'
 import { StatusMessage } from '../components/StatusMessage'
 

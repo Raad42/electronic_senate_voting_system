@@ -1,4 +1,8 @@
-"""Auth service: the only service that authenticates anyone (Milestone 2 Section 2).
+"""
+Author: Zak
+Edits:
+
+Auth service: the only service that authenticates anyone (Milestone 2 Section 2).
 
 Electors (2.2): AEC voter ID + password for a state. On success the roll records THAT an
 authorisation was issued, and the elector gets a single-use capability carrying only a random
@@ -8,6 +12,25 @@ Officials (2.3): password + one-time code, one active role per session. The sess
 server-side here (Table 11) and the signed token pointing at it travels in an HttpOnly,
 Secure, SameSite=Strict cookie. Irreversible actions need a step-up assertion bound to that
 action and resource, valid for two minutes, usable once.
+
+Requirements:
+    GR01 - only an enrolled elector, in their own state, gets one voting authorisation
+    GR02 - the authorisation carries a random nonce and the state, never the voter's identity
+    GR03 - officials need a password, a one-time code and one role, plus step-up for irreversible actions
+    GR04 - voters never get locked out, officials get locked after 5 failed logins
+
+Run:
+    docker compose up -d --build
+    Then sign in through the browser at https://localhost:8443
+
+Usage example:
+    POST /api/auth/elector/authorisation
+    {"state": "SA", "voterId": "SA-0001", "password": "sa-voter-0001", "electionId": "senate-2026"}
+
+Output:
+    Returns a one-time authorisation token for the SA ballot
+    If the same voter tries again they get "A vote is already recorded against this enrolment"
+    An official with the wrong code gets "Invalid credentials"
 """
 import hmac
 import secrets

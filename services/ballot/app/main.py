@@ -1,4 +1,8 @@
-"""Ballot service (GR01, GR02).
+"""
+Author: Raad
+Edits:
+
+Ballot service (GR01, GR02).
 
 Contest set-up (Milestone 2 Table 7): an ELECTION_OFFICIAL scoped to the state commits the
 nominations and fixes the party order (both irreversible, so both need step-up), then opens and
@@ -8,6 +12,23 @@ Casting a vote is ONE transaction: the PDP judges SUBMIT_BALLOT on the capabilit
 nonce is consumed (primary key, so a second use fails) and the ballot is stored sealed to the
 Count service's key under a random reference. Ballots hold no elector id, nonce or timestamp,
 and the Ballot service cannot read them.
+
+Requirements:
+    GR01 - one vote per authorisation, because the nonce is used up in the same transaction that stores the ballot
+    GR02 - ballots are sealed and stored with no voter ID, nonce or time, and looking one up by voter is refused
+    GR03 - contest steps follow the LIFECYCLE table and need the right role and step-up
+
+Run:
+    docker compose up -d --build
+    docker compose exec ballot_db psql -U owner -d ballot -c "SELECT * FROM ballots LIMIT 2;"
+
+Usage example:
+    Sign in as voter SA-0001 with password sa-voter-0001, rank a candidate and submit
+
+Output:
+    The ballot is accepted and the voter gets a receipt with a random submission ID
+    Reusing the same authorisation gives "Refused: this authorisation has already been used"
+    Looking up a ballot by voter ID is refused for all officials
 """
 import hashlib
 import json

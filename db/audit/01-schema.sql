@@ -1,3 +1,18 @@
+-- Author: Raad
+-- Edits:
+--
+-- Audit database with the append-only events table
+--
+-- Requirements:
+--     GR05 - triggers block UPDATE, DELETE and TRUNCATE, even for the table owner
+--
+-- Run:
+--     Docker runs this file the first time it creates the database volume
+--     docker compose exec audit_db psql -U owner -d audit -c "DELETE FROM events WHERE seq=1;"
+--
+-- Output:
+--     The delete fails with the error "audit events are append-only"
+--
 -- Append-only audit log (GR05). body is the canonical JSON that was hashed and signed.
 CREATE TABLE events (
     seq       BIGINT PRIMARY KEY,

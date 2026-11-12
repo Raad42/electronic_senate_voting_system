@@ -1,8 +1,26 @@
-"""Strict request models. Fixed shape (no free-form dicts), so hostile JSON such as deep nesting
+"""
+Author: Raad
+Edits:
+
+Strict request models. Fixed shape (no free-form dicts), so hostile JSON such as deep nesting
 or unexpected fields is rejected before any processing.
 
 Formality follows the Senate "savings" rules: voters are INSTRUCTED to number at least 6
 boxes above the line or 12 below, but a ballot stays formal with at least 1 above or 6 below.
+
+Requirements:
+    GR01 - only well-formed, formal ballots for this contest are accepted
+
+Run:
+    python -m pytest tests/test_ballot_schema.py -v
+
+Usage example:
+    BallotSubmission(above_the_line=["A", "B"])
+    BallotSubmission(above_the_line=["A"], below_the_line=["CAND-041"])
+
+Output:
+    The first one is fine
+    The second fails with "Vote either above the line or below the line, not both or neither"
 """
 from typing import Annotated
 

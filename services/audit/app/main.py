@@ -1,4 +1,8 @@
-"""Audit service (GR05): append-only, hash-chained, signed event log.
+"""
+Author: Raad
+Edits:
+
+Audit service (GR05): append-only, hash-chained, signed event log.
 
 Records come in families (Milestone 2 Table 13) and each family may only carry its own fields,
 so no record can put an elector's enrolment next to a nonce or a ballot reference (GR02).
@@ -7,6 +11,22 @@ by precise time (Section 2.7).
 
 Appends are serialised with a Postgres advisory lock so two events can never claim the same
 place in the chain. The database user has INSERT and SELECT only (see db/audit).
+
+Requirements:
+    GR02 - record families share no field, so no event links a voter to a ballot
+    GR05 - the log is append-only, hash-chained and signed, and only an auditor can read or verify it
+
+Run:
+    docker compose up -d --build
+    docker compose exec audit_db psql -U owner -d audit -c "DELETE FROM events WHERE seq=1;"
+
+Usage example:
+    Sign in as aud.demo and open the Audit page, which loads the latest 50 events
+
+Output:
+    Shows the latest events with chain status VALID
+    Other roles are refused since only an auditor can read the log
+    The DELETE above fails with "audit events are append-only"
 """
 import json
 from datetime import datetime, timezone

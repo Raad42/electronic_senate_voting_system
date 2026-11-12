@@ -1,10 +1,32 @@
-"""FastAPI dependencies that turn a request into a checked caller (Milestone 2 Sections 2 and 3).
+"""
+Author: Zak
+Edits:
+
+FastAPI dependencies that turn a request into a checked caller (Milestone 2 Sections 2 and 3).
 
 Officials: the signed token arrives in an HttpOnly cookie. Its signature is checked here, then
 Auth confirms the server-side session is still live (idle / absolute timeout, revocation) and,
 for state-changing requests, that the CSRF synchroniser token matches.
 
 Electors: a single-use capability in the Authorization header. No cookie, no session.
+
+Requirements:
+    GR02 - an elector passed to the PDP carries no identity at all
+    GR03 - every official request has its session, CSRF token and PDP decision checked, and a step-up works only once
+
+Run:
+    python -m pytest tests/test_tokens.py -v
+    The tests cover the token checks
+    The rest of this file runs inside each service once Docker is up
+
+Usage example:
+    @app.get("/events")
+    def list_events(official: Official):
+        authorise("READ_AUDIT_LOG", official, {})
+
+Output:
+    No session cookie gives "Invalid or expired credentials"
+    A POST that has the cookie but no X-CSRF-Token header gives "Missing CSRF token"
 """
 from collections.abc import Callable
 from typing import Annotated, Any

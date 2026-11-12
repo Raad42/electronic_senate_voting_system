@@ -1,4 +1,8 @@
-"""Signed tokens (EdDSA / Ed25519), following Milestone 2 Section 2.1.
+"""
+Author: Zak
+Edits:
+
+Signed tokens (EdDSA / Ed25519), following Milestone 2 Section 2.1.
 
 Electors and officials get the same envelope (Table 4):
   iss = aec-auth, aud = senate-voting-api, a `kid` header naming the signing key, alg EdDSA
@@ -11,6 +15,25 @@ Then exactly one claim shape:
 
 Only Auth holds the private signing key; every other service verifies with the public key.
 Service-to-service tokens are separate: each service signs with its own key.
+
+Requirements:
+    GR01 - an elector token can be used once, because the Ballot service uses up its nonce
+    GR02 - the elector token holds only a nonce and a state, never the voter's identity
+    GR03 - official tokens carry the role, scope and step-up, and only EdDSA signatures are accepted
+
+Run:
+    python -m pytest tests/test_tokens.py -v
+
+Usage example:
+    token = issue_elector_token("SA")
+    verify_elector_token(token)
+    verify_official_token(token)
+
+Output:
+    verify_elector_token gives back the claims, which are just the issuer, audience, times, a
+    random nonce and the state SA
+    Passing it to verify_official_token raises SignatureInvalid because an elector token can't
+    be used as an official one
 """
 import hashlib
 import secrets

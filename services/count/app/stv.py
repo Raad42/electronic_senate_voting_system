@@ -1,4 +1,8 @@
-"""Single Transferable Vote counting. Pure Python: no I/O, no randomness, exact fractions.
+"""
+Author: Raad
+Edits:
+
+Single Transferable Vote counting. Pure Python: no I/O, no randomness, exact fractions.
 
 Simplified Senate-style STV:
   - Droop quota: floor(formal ballots / (seats + 1)) + 1
@@ -11,6 +15,22 @@ Simplified Senate-style STV:
 
 This is a teaching implementation. The real AEC rules (bulk exclusion, last-parcel
 transfers, rounding to whole votes) differ in detail; document any differences you keep.
+
+Requirements:
+    GR03 - a court-ordered exclusion is applied before counting, so the recount changes the result
+    GR05 - the count uses exact fractions, so the same ballots always give the same result
+
+Run:
+    python -m pytest tests/test_stv.py -v
+
+Usage example:
+    ballots = [["A", "B"]] * 5 + [["C"]] * 4
+    count_stv(["A", "B", "C"], ballots, seats=1)
+    count_stv(["A", "B", "C"], ballots, seats=1, excluded={"A"})
+
+Output:
+    First count: the quota is 5 and A wins
+    In the recount A is excluded, so A's 5 ballots move to B and B wins in round 1
 """
 from dataclasses import dataclass, field
 from fractions import Fraction

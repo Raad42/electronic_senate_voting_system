@@ -1,9 +1,29 @@
-"""Count service (GR05): START_COUNT (Milestone 2 Figure 2).
+"""
+Author: Raad
+Edits:
+
+Count service (GR05): START_COUNT (Milestone 2 Figure 2).
 
 Only a COUNT_OPERATOR scoped to the contest, with a step-up assertion for START_COUNT on that
 exact contest, may start it. The count is audited before and after it runs, the chain is then
 re-verified, and only an intact chain releases the result. If the audit log is down the count
 is refused.
+
+Requirements:
+    GR03 - only a count operator for this contest, with a step-up for START_COUNT, can start the count
+    GR05 - the count is audited before and after it runs, and refused if the audit log is down
+
+Run:
+    docker compose up -d --build
+    .venv/bin/python scripts/close_and_count.py
+
+Usage example:
+    Run close_and_count.py
+    It signs in as co.sa, does the step-up and then asks this service to count
+
+Output:
+    The count runs and the result comes back once the audit chain checks out
+    Trying before voting has closed gives "Counting starts only after voting closes"
 """
 from typing import Annotated, Any
 

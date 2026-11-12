@@ -1,8 +1,27 @@
-"""Hash-chain logic for the tamper-evident audit log (GR05).
+"""
+Author: Raad
+Edits:
+
+Hash-chain logic for the tamper-evident audit log (GR05).
 
 Each entry stores hash = SHA-256(prev_hash || canonical(body)) and an Ed25519 signature
 over that hash. Editing, deleting or re-ordering any entry breaks every hash after it,
 and forging a new chain needs the Audit service's private key.
+
+Requirements:
+    GR05 - any edit, deletion or re-ordering of the audit log is detected
+
+Run:
+    python -m pytest tests/test_audit_chain.py -v
+
+Usage example:
+    verify_chain(rows, public_key)
+    rows[4]["body"]["event_type"] = "EDITED"
+    verify_chain(rows, public_key)
+
+Output:
+    With 12 untouched events the check passes and all 12 are checked
+    After editing event 5 it fails at event 5 with "entry contents were changed"
 """
 import base64
 import hashlib

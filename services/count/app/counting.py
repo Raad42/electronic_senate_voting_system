@@ -1,8 +1,30 @@
-"""Fetches a closed contest's sealed ballots from the Ballot service, decrypts them with the
+"""
+Author: Raad
+Edits:
+
+Fetches a closed contest's sealed ballots from the Ballot service, decrypts them with the
 Count key and runs STV. Shared by the public count endpoint and the internal recount one.
 
 After every count or recount the audit chain is re-verified before the result is released
 (Milestone 2 Figure 2): if verification fails the result is withheld and the failure reported.
+
+Requirements:
+    GR02 - ballots are only ever decrypted here, with the Count service's private key
+    GR05 - the audit chain is checked again before any result is released
+
+Run:
+    docker compose up -d --build
+    .venv/bin/python scripts/close_and_count.py
+    This script closes voting and then calls the count
+
+Usage example:
+    outcome = run_count("senate-2026", "SA")
+    release_or_withhold(outcome, "co.sa")
+
+Output:
+    Releases the result with the quota, who got elected, each round, a SHA-256 hash of the
+    result and how many audit entries were checked
+    If the audit chain is broken the result is held back and reported instead
 """
 import hashlib
 import json

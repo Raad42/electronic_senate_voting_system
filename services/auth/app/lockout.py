@@ -1,4 +1,8 @@
-"""Per-account lockout for OFFICIALS after repeated failures. Nginx limits by IP address; this
+"""
+Author: Zak
+Edits:
+
+Per-account lockout for OFFICIALS after repeated failures. Nginx limits by IP address; this
 limits by account, so a slow distributed guessing attack is still stopped.
 
 Electors are deliberately never locked out (Milestone 2 Section 4.4): anyone who knew a voter
@@ -6,6 +10,26 @@ ID could otherwise lock that person out of voting.
 
 Uses its OWN transaction: the request's transaction is rolled back when the login is
 rejected, and a failure count written there would be rolled back with it.
+
+Requirements:
+    GR04 - password guessing is slowed down without letting anyone lock voters out
+    GR03 - only officials holding valid credentials can act
+
+Run:
+    docker compose up -d --build
+    Needs the auth database, so it gets tested through the official sign-in
+
+Usage example:
+    from app import lockout
+
+    for _ in range(5):
+        lockout.record_failure("official:eo.sa")
+    lockout.is_locked("official:eo.sa")
+
+Output:
+    True
+    After 5 wrong passwords or codes the account is locked for 15 minutes
+    Signing in during that time gives "Too many failed attempts, try again later"
 """
 from datetime import datetime, timedelta, timezone
 

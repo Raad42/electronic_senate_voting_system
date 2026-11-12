@@ -1,4 +1,8 @@
-"""Verified exclusion grounds (GR03).
+"""
+Author: Raad
+Edits:
+
+Verified exclusion grounds (GR03).
 
 A court order (or the authority acting for it) signs the exclusion with the court key.
 The recount only proceeds if that signature checks out against court.pub AND the signed
@@ -8,6 +12,20 @@ widen or retarget an exclusion.
 Signed document (canonical JSON, see common.audit_chain.canonical):
     {"court_order_ref": "...", "election_id": "...", "state": "...",
      "excluded_candidates": ["sorted", "ids"], "issued_on": "YYYY-MM-DD"}
+
+Requirements:
+    GR03 - an exclusion only goes ahead with a genuine court signature for this exact contest
+
+Run:
+    python -m pytest tests/test_grounds.py -v
+
+Usage example:
+    verified_court_order("HC-2026-17")
+    verified_court_order("HC-9999")
+
+Output:
+    HC-2026-17 comes back as a valid court order for senate-2026 in SA excluding CAND-041
+    HC-9999 raises GroundsInvalid as it isn't a registered court order
 """
 import base64
 import json

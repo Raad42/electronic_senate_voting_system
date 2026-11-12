@@ -1,8 +1,28 @@
-"""Calls between services: mutual TLS for the connection, a signed service token for identity.
+"""
+Author: Zak
+Edits:
+
+Calls between services: mutual TLS for the connection, a signed service token for identity.
 
 Every client FAILS CLOSED: if the PDP cannot be reached the answer is "deny", if Auth cannot
 confirm a session the request is refused, and if the audit log cannot record a required event
 the operation is refused.
+
+Requirements:
+    GR03 - PDP and session checks fail closed, so an unreachable service means the request is denied
+    GR05 - if a required audit event cannot be written, the operation stops
+
+Run:
+    docker compose up -d --build
+    All the services use these clients to talk to each other over mutual TLS
+
+Usage example:
+    from common.clients import audit
+    audit.record("CountRecord", "COUNT_STARTED", "co.sa", {"electionId": "senate-2026", "contestState": "SA"})
+
+Output:
+    Returns the saved audit entry with its sequence number and hash
+    If the audit service is down it raises AuditUnavailable and the action doesn't go ahead
 """
 import ssl
 from dataclasses import dataclass

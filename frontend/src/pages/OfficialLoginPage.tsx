@@ -1,3 +1,25 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Official sign-in with a username, password, one-time code and one role
+ *
+ * Requirements:
+ *     GR03 - sign-in needs a password and a one-time code, one role per session, and only internal return paths are allowed
+ *     GR04 - five failed attempts lock the official account
+ *
+ * Run:
+ *     cd frontend && npm run dev
+ *     Then open /official/login
+ *
+ * Usage example:
+ *     Sign in as eo.sa with the password from demo_officials.py, a live one-time code and the
+ *     Election official role
+ *
+ * Output:
+ *     Takes you to the official console, which shows your role and scope
+ *     A wrong code shows "Invalid credentials"
+ */
 import { FormEvent, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api, describeError } from '../api/client'

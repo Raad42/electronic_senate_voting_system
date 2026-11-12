@@ -1,3 +1,24 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Auditor view of the audit log and its chain status
+ *
+ * Requirements:
+ *     GR05 - only auditors can open it, and it shows the chain status and how each event links to the one before
+ *
+ * Run:
+ *     cd frontend && npm run dev
+ *     Then sign in as aud.demo and open /audit
+ *
+ * Usage example:
+ *     Open /audit as aud.demo, then again as rd.sa
+ *
+ * Output:
+ *     The auditor sees "Chain: VALID" with events such as BALLOT_ACCEPTED, COUNT_EXECUTED and
+ *     EXCLUSION_ENTERED
+ *     Any other role sees "Auditor access required"
+ */
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApiError, api, describeError } from '../api/client'

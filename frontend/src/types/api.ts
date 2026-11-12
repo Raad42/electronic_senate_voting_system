@@ -1,3 +1,26 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Small typed contracts for each API call, following interface segregation
+ *
+ * Requirements:
+ *     GR01 to GR05 - request and response shapes match the backend and are checked when the code compiles
+ *
+ * Run:
+ *     cd frontend && npm run build
+ *     The build fails if a page uses one of these shapes wrongly
+ *
+ * Usage example:
+ *     const request: ExclusionRequest = { electionId: 'senate-2026', state: 'SA', candidateId: 'CAND-041',
+ *       recountPhase: 'OPEN', exclusionGround: 'COURT_ORDER', supportingEvidenceId: 'HC-2026-17',
+ *       stepUpCode: '123456' }
+ *
+ * Output:
+ *     This compiles
+ *     If stepUpCode is missing or exclusionGround isn't one of the allowed values, the build fails
+ *     with a type error
+ */
 // Shared frontend data shapes for API requests and responses.
 export type Candidate = {
   candidateId: string

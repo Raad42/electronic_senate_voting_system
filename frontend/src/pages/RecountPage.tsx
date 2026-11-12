@@ -1,3 +1,26 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Recount delegate screen for entering a court-ordered exclusion with a fresh step-up code
+ *
+ * Requirements:
+ *     GR03 - an evidence ID and a step-up code are required, and a refused request changes nothing
+ *     GR05 - an approved result shows its audit event ID and confirms the chain was verified
+ *
+ * Run:
+ *     cd frontend && npm run dev
+ *     Then sign in as rd.sa and open /official/recount
+ *
+ * Usage example:
+ *     Exclude CAND-041 with evidence HC-2026-17 and a new six-digit code, then try CAND-052 with
+ *     the same evidence
+ *
+ * Output:
+ *     CAND-041 is approved and the page shows the new elected list and the audit event ID
+ *     CAND-052 is rejected because it isn't named in court order HC-2026-17
+ *     A wrong code ends the session and you have to sign in again
+ */
 import { FormEvent, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiError, api, describeError } from '../api/client'

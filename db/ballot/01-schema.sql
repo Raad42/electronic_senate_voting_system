@@ -1,3 +1,20 @@
+-- Author: Raad
+-- Edits:
+--
+-- Ballot database with contests, candidates, used nonces and sealed ballots
+--
+-- Requirements:
+--     GR01 - the used_nonces primary key means one authorisation can only be spent once
+--     GR02 - the ballots table holds a random ID and ciphertext only, with no voter, nonce or time
+--
+-- Run:
+--     Docker runs this file the first time it creates the database volume
+--     docker compose exec ballot_db psql -U owner -d ballot -c "SELECT * FROM ballots LIMIT 2;"
+--
+-- Output:
+--     Each row just has a random ballot ID, senate-2026, SA and a long ciphertext string
+--     There's no voter ID anywhere in the row
+--
 CREATE TABLE elections (
     id     TEXT PRIMARY KEY,
     name   TEXT NOT NULL

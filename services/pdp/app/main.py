@@ -1,7 +1,26 @@
-"""Policy Decision Point: answers "is this allowed?" for the other services.
+"""
+Author: Zak
+Edits:
+
+Policy Decision Point: answers "is this allowed?" for the other services.
 
 Internal only (not routed by Nginx). Callers authenticate with a service token. Every refusal
 is written to the audit log (Section 3.6), in the record family that fits who was refused.
+
+Requirements:
+    GR03 - every privileged action is judged here using the rules in rules.py
+    GR05 - every refusal is written to the audit log
+
+Run:
+    docker compose up -d --build
+    Internal only, Nginx gives a 404 if you try to reach it from outside
+
+Usage example:
+    Sign in as eo.sa and open the Audit page, which asks the PDP about READ_AUDIT_LOG
+
+Output:
+    Refused since only an auditor can read the log
+    An AUTHORISATION_DENIED event gets logged as well
 """
 from typing import Any
 

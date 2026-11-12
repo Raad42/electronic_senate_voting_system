@@ -1,3 +1,22 @@
+-- Author: Raad
+-- Edits:
+--
+-- Auth database with officials, roles, server-side sessions and login failures
+--
+-- Requirements:
+--     GR03 - roles are scoped, and sessions are held on the server so they can be revoked and time out
+--     GR04 - the login_failures table drives the official lockout
+--
+-- Run:
+--     Docker runs this file the first time it creates the database volume
+--     .venv/bin/python scripts/demo_officials.py
+--     That script sets up the demo officials eo.sa, co.sa, rd.sa and aud.demo
+--
+-- Output:
+--     The official_roles table gets one row per role
+--     For example, rd.sa is a recount delegate for the 2026 Senate election in SA, and aud.demo is
+--     an auditor with no election or state scope
+--
 -- Officials, their roles, server-side sessions and login-failure tracking.
 -- Officials are created with: docker compose exec auth python -m app.manage create-official
 CREATE TABLE officials (

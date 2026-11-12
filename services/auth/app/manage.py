@@ -1,4 +1,8 @@
-"""Admin commands run inside the auth container (the only place that can reach the auth DB).
+r"""
+Author: Zak
+Edits:
+
+Admin commands run inside the auth container (the only place that can reach the auth DB).
 
     docker compose exec auth python -m app.manage create-official \
         --username eo.nsw --role ELECTION_OFFICIAL --election SEN2028 --state NSW
@@ -11,6 +15,21 @@ Every role except AUDITOR is scoped to one election and one state.
 
 The password is prompted for (never passed on the command line) and the TOTP secret is
 printed once as an otpauth:// URI to add to an authenticator app.
+
+Requirements:
+    GR03 - every role except AUDITOR is scoped to one election and one state
+
+Run:
+    docker compose exec auth python -m app.manage create-official --username aud.kim --role AUDITOR
+
+Usage example:
+    docker compose exec auth python -m app.manage create-official --username rd.sa --role RECOUNT_DELEGATE --election senate-2026 --state SA
+
+Output:
+    Asks for a password, then prints the TOTP secret once so it can be added to an authenticator
+    app
+    If the election or state is missing it stops with "RECOUNT_DELEGATE must be scoped with
+    --election and --state"
 """
 import argparse
 import getpass

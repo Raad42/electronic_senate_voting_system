@@ -1,4 +1,8 @@
-"""Policy rules: one function per operation (Milestone 2 Section 3.3). Pure Python, no I/O.
+"""
+Author: Zak
+Edits:
+
+Policy rules: one function per operation (Milestone 2 Section 3.3). Pure Python, no I/O.
 
 Default is DENY: an action with no rule, or a rule that does not explicitly allow, is refused.
 
@@ -11,6 +15,26 @@ Roles (Table 6), each scoped to one election and one state except AUDITOR:
 Step-up (Table 7) is required for exactly COMMIT_NOMINATIONS, FIX_PARTY_ORDER, START_COUNT and
 ENTER_MANUAL_EXCLUSION. The assertion must name this action and this exact resource, and must
 not have expired. Single use is enforced by Auth when the action goes ahead.
+
+Requirements:
+    GR02 - nobody, not even an auditor, may look a ballot up by voter identity
+    GR03 - an action needs the right role, the exact election and state, and a matching step-up
+    GR05 - only an auditor may read or verify the audit log
+
+Run:
+    python -m pytest tests/test_pdp_rules.py -v
+
+Usage example:
+    auditor = {"principalType": "OFFICIAL", "role": "AUDITOR", "mfaSatisfied": True}
+    decide("READ_AUDIT_LOG", auditor, {})
+    decide("QUERY_BALLOT_BY_ELECTOR_ID", auditor, {"electorId": "SA-0001"})
+    decide("START_COUNT", auditor, {"election_id": "senate-2026", "state": "SA"})
+
+Output:
+    READ_AUDIT_LOG is allowed
+    The ballot lookup is refused with QUERY_REFUSED since ballots can't be retrieved by elector
+    identity
+    START_COUNT is refused because only a count operator can start a count
 """
 import time
 from dataclasses import dataclass

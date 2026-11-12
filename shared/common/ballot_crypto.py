@@ -1,4 +1,8 @@
-"""Ballot encryption (GR02).
+"""
+Author: Raad
+Edits:
+
+Ballot encryption (GR02).
 
 Ballots are sealed to the COUNT service's X25519 public key, so the Ballot service and its
 database only ever hold ciphertext they cannot read. Scheme: ephemeral X25519 key exchange
@@ -6,6 +10,24 @@ database only ever hold ciphertext they cannot read. Scheme: ephemeral X25519 ke
 ciphertext moved to another contest fails to decrypt.
 
 Wire format (base64): ephemeral_public(32) || nonce(12) || ciphertext+tag
+
+Requirements:
+    GR02 - the Ballot service stores ciphertext it cannot read, and only the Count service can open it
+
+Run:
+    python -m pytest tests/test_ballot_crypto.py -v
+
+Usage example:
+    aad = contest_aad("senate-2026", "SA")
+    blob = encrypt_ballot({"below_the_line": ["CAND-041", "CAND-042"]}, count_public_key, aad)
+    decrypt_ballot(blob, count_private_key, aad)
+    decrypt_ballot(blob, count_private_key, contest_aad("senate-2026", "VIC"))
+
+Output:
+    blob is a 136 character base64 string and changes every time
+    Decrypting with the SA label gives back the original preferences
+    Decrypting it as VIC raises BallotDecryptError, so a ballot can't be moved to another
+    contest
 """
 import base64
 import json

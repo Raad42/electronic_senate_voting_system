@@ -1,3 +1,22 @@
+-- Author: Raad
+-- Edits:
+--
+-- Electoral roll database, which only the Auth service can reach
+--
+-- Requirements:
+--     GR01 - the issuances primary key allows one authorisation per elector per election
+--     GR02 - issuances records only that an authorisation was issued, with no time or nonce
+--
+-- Run:
+--     Docker runs this file the first time it creates the database volume
+--
+-- Usage example:
+--     Sign in as voter SA-0001 with password sa-voter-0001 twice
+--
+-- Output:
+--     The first sign-in adds an issuances row for SA-0001 and returns a ballot token
+--     The second is refused with "A vote is already recorded against this enrolment"
+--
 -- Electoral roll. Only the Auth service can reach this database (separate Docker network).
 CREATE TABLE electors (
     elector_id    TEXT PRIMARY KEY,                     -- the AEC-issued voter identifier

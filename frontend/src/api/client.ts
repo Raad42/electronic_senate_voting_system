@@ -1,3 +1,26 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Single gateway from the UI to the backend API, handling cookies, the CSRF header and errors
+ *
+ * Requirements:
+ *     GR01 to GR05 - all pages go through this file to reach the backend
+ *     GR03 - state-changing calls send the X-CSRF-Token header, and the token is kept in memory and cleared on a 401
+ *     GR04 - a 429 response is shown as "Too many requests. Try again in 60 seconds."
+ *
+ * Run:
+ *     cd frontend && cp .env.example .env && npm install && npm run dev
+ *     Then open http://localhost:5173, or run npm run build and use https://localhost:8443
+ *
+ * Usage example:
+ *     api.submitBallot(token, 'senate-2026', 'SA', [{ candidateId: 'CAND-041', rank: 1 }], version)
+ *
+ * Output:
+ *     First call returns a submission ID with status ACCEPTED
+ *     Calling it again throws an ApiError with status 409 and the message "Refused: this
+ *     authorisation has already been used"
+ */
 import type {
   AuditEvent,
   BallotConfig,

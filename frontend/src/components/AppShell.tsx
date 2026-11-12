@@ -1,3 +1,24 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Shared layout with the header and navigation around every page
+ *
+ * Requirements:
+ *     GR01 to GR05 - one place to reach the voter, official, recount, audit and resilience screens
+ *
+ * Run:
+ *     cd frontend && npm install && npm run dev
+ *     Then open http://localhost:5173
+ *
+ * Usage example:
+ *     App.tsx wraps all of its routes inside the AppShell component
+ *
+ * Output:
+ *     Each page has the "Secure voting system" header and links to Overview, Voter ballot,
+ *     Official console, Recount, Audit log and Resilience
+ *     The link for the page you're on is highlighted
+ */
 import { NavLink } from 'react-router-dom'
 import type { PropsWithChildren } from 'react'
 

@@ -1,3 +1,24 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Voter flow that moves from authorise to ballot to review to receipt
+ *
+ * Requirements:
+ *     GR01 - the voter must sign in before seeing a ballot, and a second vote is refused
+ *     GR02 - the voter ID and password stay in this page's memory, and the password is cleared after use
+ *
+ * Run:
+ *     cd frontend && npm run dev
+ *     Then open /voter/ballot
+ *
+ * Usage example:
+ *     Sign in as SA-0001 with password sa-voter-0001, pick a candidate, review and submit
+ *
+ * Output:
+ *     Shows a receipt with a submission ID
+ *     Signing in as the same voter again shows "A vote is already recorded against this enrolment"
+ */
 import { FormEvent, useEffect, useState } from 'react'
 import { api, describeError } from '../api/client'
 import { StatusMessage } from '../components/StatusMessage'

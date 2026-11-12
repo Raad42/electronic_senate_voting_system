@@ -1,3 +1,23 @@
+/**
+ * Author: Arya
+ * Edits:
+ *
+ * Official console that shows the signed-in role and scope before any protected action
+ *
+ * Requirements:
+ *     GR03 - the session is checked with the server first, and anyone without a session is sent to sign in
+ *
+ * Run:
+ *     cd frontend && npm run dev
+ *     Then open /official
+ *
+ * Usage example:
+ *     Open /official while signed in as rd.sa, then open it again after signing out
+ *
+ * Output:
+ *     The first visit shows the role RECOUNT_DELEGATE for senate-2026 in SA
+ *     The second visit goes straight to the sign-in page
+ */
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiError, api, describeError } from '../api/client'

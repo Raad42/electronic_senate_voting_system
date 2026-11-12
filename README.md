@@ -1,6 +1,8 @@
 # electronic_senate_voting_system
 
 Zak Valente
+Arya Ranjan
+Raad Rahman
 
 COMP SCI 4024 Secure Software Engineering: Electronic Senate Voting System.
 

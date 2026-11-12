@@ -1,9 +1,29 @@
-"""Recount service (GR03, GR05): ENTER_MANUAL_EXCLUSION.
+"""
+Author: Raad
+Edits:
+
+Recount service (GR03, GR05): ENTER_MANUAL_EXCLUSION.
 
 Checks, in order: session -> PDP rule (RECOUNT_DELEGATE, exact election + state scope, step-up
 bound to this action, contest and candidate list) -> court signature over the grounds -> audit
 entry -> recount via the Count service (which also checks the recount phase is open) -> audit
 entry -> chain verification before the result is released (Milestone 2 Figure 2).
+
+Requirements:
+    GR03 - only the right delegate, in scope, with a verified court order and a fresh step-up code can change a result
+    GR05 - every exclusion, refusal and recount is audited, and the chain is verified before release
+
+Run:
+    docker compose up -d --build
+    Then sign in as rd.sa and open https://localhost:8443/official/recount
+
+Usage example:
+    Exclude CAND-041 with evidence HC-2026-17 and a fresh one-time code, then try CAND-052
+
+Output:
+    CAND-041 is approved and the response shows the new elected candidates and the audit event
+    ID
+    CAND-052 is rejected because it isn't named in court order HC-2026-17
 """
 import uuid
 from datetime import date
